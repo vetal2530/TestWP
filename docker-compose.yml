@@ -1,0 +1,48 @@
+version: '3.3'
+
+services:
+
+  wordpress1:
+    image: wordpress
+    container_name: wordpress1
+    restart: unless-stopped
+    environment:
+      - WORDPRESS_DB_HOST=127.0.0.1:3306
+      - WORDPRESS_DB_USER=user_wp1
+      - WORDPRESS_DB_PASSWORD=password_wp1
+      - WORDPRESS_DB_NAME=wordpress1
+    volumes:
+      - wordpress:/var/www/html/
+    networks:
+      - app-network
+
+   wordpress2:
+    image: wordpress
+    container_name: wordpress2
+    restart: unless-stopped
+    environment:
+      - WORDPRESS_DB_HOST=127.0.0.1:3306
+      - WORDPRESS_DB_USER=user_wp2
+      - WORDPRESS_DB_PASSWORD=password_wp2
+      - WORDPRESS_DB_NAME=wordpress2
+    volumes:
+      - wordpress:/var/www/html/wp2
+    networks:
+      - app-network
+
+    nginx:
+    depends_on:
+      - wordpress
+    context: './nginx/'
+    image: nginx
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - wordpress1:/var/www/html/
+      - wordpress2:/var/www/html/wp2
+      - "/etc/ssl/example.com/:/etc/ssl/example.com/"
+    networks:
+      - app-network
